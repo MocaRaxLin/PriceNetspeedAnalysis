@@ -12,40 +12,34 @@ x = myData[,xName]
 #      , main="Price for Net Speed")
 
 
-
-# standardlize the given data
-uy = y
-ym = mean(uy)
-ysd = sd(uy)
-zy = (uy - ym)/ysd
-
-ux = x
-xm = mean(ux)
-xsd = sd(ux)
-zx = (ux - xm)/xsd
-
-
 # 1. test linear regression
-zetaLinear = SimpleLinearReg(zx, zy)
-# print("zeta0 and zeta1")
-# print(zetaLinear)
+betaLinear = SimpleLinearReg(x, y)
+# print("beta0 and beta1")
+print("betaLinear")
+print(betaLinear)
 
 
-# 2.determine slope beta1 distribution whose
-# mean is close to 0.63 and intercept is almost 0
+# 1. find c0 c1 for sd = c0 + c1*x
+cPar = sdConstant(x, y)
+print(c("C0, C1"))
+print(cPar)
+
+
+# 2.determine beta0 beta1 by normal distribution
 line_no = 20
-M1 = 0.63
-S1 = 0.15
-zbeta1 = rnorm( line_no , M1, S1 )
-# Transform to original scale:
-beta1 = zbeta1 * ysd / xsd
-# print(ysd)
-# print(xsd)
+M1 = betaLinear[2]
+S1 = abs(M1/4)
+M0 = betaLinear[1]
+S0 = cPar[1]
+print(c("M1", "S1", "M0", "S0"))
+print(c(M1, S1, M0, S0))
+beta1 = rnorm( line_no , M1, S1 )
+beta0 = rnorm( line_no, M0, S0 )
+print(c("beta0", "beta1"))
+print(c(beta0[1], beta1[1]))
 
 
 # 3.build gamma distribution
-cPar = sdConstant(x, y)
-print(cPar)
 gx = seq(0.1, 1.5 ,length = 4)
 # print(gx)
 i = runif(1,1,line_no)
@@ -85,12 +79,14 @@ plot(x, y, lwd=2 , col="black",cex=1.5,
 # hierarchical linear regression
 xComb = seq(xLim[1],xLim[2],length=length(x))
 for ( i in 1:length(beta1)) {
-  lines( xComb , beta1[i]*xComb , col="skyblue" )
+  lines( xComb , beta0[i] + beta1[i]*xComb , col="skyblue" )
 }
 
 # simple linear regression
-beta00 = zetaLinear[1] * ysd  + ym - zetaLinear[2] * xm * ysd / xsd
-beta11 = zetaLinear[2] * ysd / xsd
+# beta00 = zetaLinear[1] * ysd  + ym - zetaLinear[2] * xm * ysd / xsd
+# beta11 = zetaLinear[2] * ysd / xsd
+beta00 = betaLinear[1]
+beta11 = betaLinear[2]
 lines( xComb , beta00 + beta11*xComb , col="red" )
 
 

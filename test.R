@@ -2,17 +2,20 @@ graphics.off() # This closes all of R's graphics windows.
 rm(list=ls())  # Careful! This clears all of R's memory!
 source("DBDA2E-utilities.R")
 
-pointNo = 100
+pointNo = 200
 gx = runif(pointNo, 0, 1.5)
-zbeta1 = rnorm(1, 0.63, 0.15)
-ysd = 9.287551e-05
-xsd = 0.5337511
-beta1 = zbeta1 * ysd / xsd
-y_hat = beta1*gx
 
 cp1 = 1.750193e-06
 cp2 = 8.476438e-05
 s = cp1 + cp2*gx
+
+M0 = -8.940413e-07
+S0 = cp1
+M1 = 1.096418e-04
+S1 = 2.741046e-05
+beta0 = rnorm(1, M0, S0)
+beta1 = rnorm(1, M1, S1)
+y_hat = beta0 + beta1*gx
 
 para = gammaShRaFromMeanSD(mean = y_hat, sd = s)
 # print(para)
@@ -50,7 +53,7 @@ plot(x, y, lwd=2 , col="black",cex=1.5,
 )
 # hierarchical linear regression
 xComb = seq(xLim[1],xLim[2],length=length(x))
-lines( xComb , beta1*xComb , col="skyblue", lwd=2)
+lines( xComb , beta0 + beta1*xComb , col="skyblue", lwd=2)
 points(gx, gy, col='red', cex=1, pch = 19)
 
 
